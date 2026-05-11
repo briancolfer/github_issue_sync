@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
     let you download GitHub issues into a CSV (suitable for Google Sheets) and push
     edits or new rows back to GitHub.
   DESC
-  spec.homepage = "https://github.com/briancolfer/github_issue_sync_extract"
+  spec.homepage = "https://github.com/briancolfer/github_issue_sync"
   spec.license  = "MIT"
 
   spec.required_ruby_version = ">= 3.1"

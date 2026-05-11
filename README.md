@@ -1,5 +1,7 @@
 # github_issue_sync
 
+[![Gem Version](https://img.shields.io/gem/v/github_issue_sync)](https://rubygems.org/gems/github_issue_sync)
+
 Export GitHub issues to CSV and sync edits back to GitHub.
 
 `github_issue_sync` provides two classes:
@@ -151,8 +153,8 @@ Done. Updated: 3, Created: 1
 ## Development
 
 ```sh
-git clone https://github.com/briancolfer/github_issue_sync_extract
-cd github_issue_sync_extract
+git clone https://github.com/briancolfer/github_issue_sync
+cd github_issue_sync
 bundle install
 bundle exec rspec
 ```
@@ -165,7 +167,7 @@ valid `GITHUB_TOKEN` in your environment.
 ## Contributing
 
 Bug reports and pull requests are welcome on
-[GitHub](https://github.com/briancolfer/github_issue_sync_extract).
+[GitHub](https://github.com/briancolfer/github_issue_sync).
 
 ## License
 
