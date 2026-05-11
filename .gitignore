@@ -1,0 +1,19 @@
+# Built gem packages
+*.gem
+
+# Bundler artefacts
+/.bundle/
+/vendor/bundle/
+/Gemfile.lock
+
+# Test / coverage
+/coverage/
+
+# macOS
+.DS_Store
+
+# Editor
+.idea/
+*.swp
+*.swo
+*.bak
