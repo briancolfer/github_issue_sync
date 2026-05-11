@@ -2,7 +2,7 @@
 
 require "csv"
 
-module QaTools
+module GithubIssueSync
   # Represents one GitHub issue as a flat hash keyed by CSV column name.
   # Knows how to build itself from a Sawyer::Resource (GitHub API response)
   # or from a CSV row hash, and how to emit its values as an ordered array

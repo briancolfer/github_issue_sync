@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../../qa_tools_helper"
-require "qa_tools/issue_exporter"
+require_relative "../spec_helper"
+require "github_issue_sync/issue_exporter"
 require "tmpdir"
 
-RSpec.describe QaTools::IssueExporter do
+RSpec.describe GithubIssueSync::IssueExporter do
   let(:repo)  { "briancolfer/abcscribe" }
   let(:token) { "test-token" }
 
@@ -25,7 +25,7 @@ RSpec.describe QaTools::IssueExporter do
     it "writes the header row matching IssueRow::COLUMNS" do
       exporter.call(output_path: output_path)
       headers = CSV.read(output_path).first
-      expect(headers).to eq(QaTools::IssueRow::COLUMNS)
+      expect(headers).to eq(GithubIssueSync::IssueRow::COLUMNS)
     end
 
     it "writes one data row per issue returned by the API" do
@@ -60,6 +60,21 @@ RSpec.describe QaTools::IssueExporter do
       exporter.call(output_path: output_path)
       data_rows = CSV.read(output_path, headers: true)
       expect(data_rows.count).to eq(2)
+    end
+  end
+
+  describe "#call — stdout mode (output_path: nil)", vcr: { cassette_name: "list_issues" } do
+    it "writes valid CSV to the provided IO" do
+      io = StringIO.new
+      exporter.call(io: io)
+      lines = CSV.parse(io.string)
+      expect(lines.first).to eq(GithubIssueSync::IssueRow::COLUMNS)
+      expect(lines.length).to eq(3) # header + 2 issues
+    end
+
+    it "does not create any file on disk" do
+      io = StringIO.new
+      expect { exporter.call(io: io) }.not_to change { Dir.glob("*.csv").count }
     end
   end
 

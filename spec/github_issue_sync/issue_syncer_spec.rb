@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-require_relative "../../qa_tools_helper"
-require "qa_tools/issue_syncer"
+require_relative "../spec_helper"
+require "github_issue_sync/issue_syncer"
 require "tmpdir"
 
 # Helper to write a minimal CSV file with the IssueRow column layout.
 def write_csv(path, rows)
-  require "qa_tools/issue_row"
+  require "github_issue_sync/issue_row"
   CSV.open(path, "w") do |csv|
-    csv << QaTools::IssueRow::COLUMNS
-    rows.each { |r| csv << QaTools::IssueRow::COLUMNS.map { |c| r[c] } }
+    csv << GithubIssueSync::IssueRow::COLUMNS
+    rows.each { |r| csv << GithubIssueSync::IssueRow::COLUMNS.map { |c| r[c] } }
   end
 end
 
-RSpec.describe QaTools::IssueSyncer do
+RSpec.describe GithubIssueSync::IssueSyncer do
   let(:repo)  { "briancolfer/abcscribe" }
   let(:token) { "test-token" }
 

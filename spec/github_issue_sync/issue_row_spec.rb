@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "../../qa_tools_helper"
-require "qa_tools/issue_row"
+require_relative "../spec_helper"
+require "github_issue_sync/issue_row"
 
-RSpec.describe QaTools::IssueRow do
+RSpec.describe GithubIssueSync::IssueRow do
   # A minimal Sawyer::Resource double — just needs [] and .labels
   let(:gh_issue) do
     labels = [
@@ -35,7 +35,7 @@ RSpec.describe QaTools::IssueRow do
 
   describe "COLUMNS" do
     it "contains the expected column names in order" do
-      expect(QaTools::IssueRow::COLUMNS).to eq(%w[
+      expect(GithubIssueSync::IssueRow::COLUMNS).to eq(%w[
         GitHub\ Issue\ #
         State
         Title
@@ -157,7 +157,7 @@ RSpec.describe QaTools::IssueRow do
     subject(:row) { described_class.from_csv_row(csv_row) }
 
     it "returns a hash with the same keys as COLUMNS" do
-      expect(row.keys).to eq(QaTools::IssueRow::COLUMNS)
+      expect(row.keys).to eq(GithubIssueSync::IssueRow::COLUMNS)
     end
 
     it "preserves all field values" do
@@ -178,7 +178,7 @@ RSpec.describe QaTools::IssueRow do
       csv_string = CSV.generate { |csv| csv << original.values }
       parsed_back = CSV.parse(csv_string).first
 
-      column_hash = QaTools::IssueRow::COLUMNS.zip(parsed_back).to_h
+      column_hash = GithubIssueSync::IssueRow::COLUMNS.zip(parsed_back).to_h
       restored = described_class.from_csv_row(column_hash)
 
       expect(restored["GitHub Issue #"]).to eq("42")

@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.github.com/repos/briancolfer/abcscribe/issues
+    body:
+      encoding: UTF-8
+      string: '{"labels":["bug","qa-feedback"],"title":"New issue from QA spreadsheet","body":"Body
+        of the new issue."}'
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 9.2.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - "<GITHUB_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      X-Github-Media-Type:
+      - github.v3; format=json
+    body:
+      encoding: UTF-8
+      string: '{"number":100,"state":"open","title":"New issue from QA spreadsheet","body":"Body
+        of the new issue.","labels":[{"id":4,"name":"bug","color":"ee0701"},{"id":1,"name":"qa-feedback","color":"fbca04"}],"html_url":"https://github.com/briancolfer/abcscribe/issues/100"}'
+  recorded_at: Tue, 12 May 2026 00:00:00 GMT
+recorded_with: VCR 6.4.0

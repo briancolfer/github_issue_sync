@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.github.com/repos/briancolfer/abcscribe/issues?labels=qa-feedback&page=1&per_page=100&state=open
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 9.2.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - "<GITHUB_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      X-Github-Media-Type:
+      - github.v3; format=json
+    body:
+      encoding: UTF-8
+      string: '[{"number":42,"state":"open","title":"Active Behaviors \u203a Archive:
+        The popup looks like a system dialog.","body":"## QA Feedback\n\n| Field
+        | Value |\n| --- | --- |\n| **Page / Section** | Active Behaviors |\n| **Element
+        / Feature** | Archive confirmation dialog |\n| **Type** | UX |\n| **Priority**
+        | \ud83d\udfe0 High \u2014 pre-launch preferred |\n\n## Description\n\nThe
+        popup looks like a system dialog.","labels":[{"id":1,"name":"qa-feedback","color":"fbca04"},{"id":2,"name":"pre-launch","color":"e11d48"},{"id":3,"name":"ux","color":"bfd4f2"}],"html_url":"https://github.com/briancolfer/abcscribe/issues/42","pull_request":null},{"number":43,"state":"open","title":"Login
+        page \u203a Forgot password: Link is not visible.","body":"The forgot password
+        link blends into the background.","labels":[{"id":1,"name":"qa-feedback","color":"fbca04"}],"html_url":"https://github.com/briancolfer/abcscribe/issues/43","pull_request":null}]'
+  recorded_at: Tue, 12 May 2026 00:00:00 GMT
+recorded_with: VCR 6.4.0

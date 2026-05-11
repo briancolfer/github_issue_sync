@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "github_issue_sync"
+
+GithubIssueSync::CLI.start(ARGV)

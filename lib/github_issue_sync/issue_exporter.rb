@@ -2,14 +2,14 @@
 
 require "octokit"
 require "csv"
-require "qa_tools/issue_row"
+require "github_issue_sync/issue_row"
 
-module QaTools
+module GithubIssueSync
   # Fetches GitHub issues matching the given filters and writes them to a CSV
   # that QA engineers can open in Google Sheets.
   #
   # Usage:
-  #   exporter = QaTools::IssueExporter.new(
+  #   exporter = GithubIssueSync::IssueExporter.new(
   #     repo:   "owner/repo",
   #     token:  ENV["GITHUB_TOKEN"],
   #     labels: ["qa-feedback"],
@@ -27,18 +27,20 @@ module QaTools
       @state  = state
     end
 
-    # @param output_path [String]  Path to write the CSV file.
-    # @param dry_run     [Boolean] When true, print to io instead of writing file.
-    # @param io          [IO]      Output stream for dry-run (default $stdout).
-    def call(output_path:, dry_run: false, io: $stdout)
+    # @param output_path [String, nil]  Path to write the CSV file; nil writes CSV to io.
+    # @param dry_run     [Boolean]       When true, print preview to io instead of writing.
+    # @param io          [IO]            Output stream for dry-run / nil-path mode (default $stdout).
+    def call(output_path: nil, dry_run: false, io: $stdout)
       issues = fetch_all_issues
       rows   = issues.map { |i| IssueRow.from_github(i) }
 
       if dry_run
         print_preview(rows, io)
-      else
+      elsif output_path
         write_csv(rows, output_path)
         io.puts "Exported #{rows.size} issue(s) to #{output_path}" if io.respond_to?(:puts)
+      else
+        io.print generate_csv(rows)
       end
     end
 
@@ -74,6 +76,13 @@ module QaTools
 
     def write_csv(rows, path)
       CSV.open(path, "w") do |csv|
+        csv << IssueRow::COLUMNS
+        rows.each { |row| csv << row.values }
+      end
+    end
+
+    def generate_csv(rows)
+      CSV.generate do |csv|
         csv << IssueRow::COLUMNS
         rows.each { |row| csv << row.values }
       end

@@ -2,16 +2,16 @@
 
 require "octokit"
 require "csv"
-require "qa_tools/issue_row"
+require "github_issue_sync/issue_row"
 
-module QaTools
+module GithubIssueSync
   # Reads a QA CSV (produced by IssueExporter or the v2 template) and:
   #   • Updates existing GitHub issues whose title, state, body, or labels changed.
   #   • Creates new issues for rows where "GitHub Issue #" is blank.
   #   • Skips rows that are identical to the current GitHub state.
   #
   # Usage:
-  #   syncer = QaTools::IssueSyncer.new(repo: "owner/repo", token: ENV["GITHUB_TOKEN"])
+  #   syncer = GithubIssueSync::IssueSyncer.new(repo: "owner/repo", token: ENV["GITHUB_TOKEN"])
   #   result = syncer.call(csv_path: "tmp/gh-issues-export.csv")
   #   result = syncer.call(csv_path: "...", dry_run: true, io: $stdout)
   class IssueSyncer

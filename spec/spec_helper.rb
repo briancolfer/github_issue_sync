@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-# Standalone helper for spec/lib/qa_tools/**_spec.rb
+# Standalone helper for spec/github_issue_sync/**_spec.rb
 # Does NOT load Rails — these specs test plain Ruby lib classes only.
 
 require "vcr"
 require "webmock/rspec"
 
-# Add lib/ to the load path so qa_tools classes can be required directly.
+# Add lib/ to the load path so github_issue_sync classes can be required directly.
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 
 VCR.configure do |config|
