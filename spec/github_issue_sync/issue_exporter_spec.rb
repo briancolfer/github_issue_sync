@@ -3,6 +3,7 @@
 require_relative "../spec_helper"
 require "github_issue_sync/issue_exporter"
 require "tmpdir"
+require "json"
 
 RSpec.describe GithubIssueSync::IssueExporter do
   let(:repo)  { "briancolfer/abcscribe" }
@@ -75,6 +76,37 @@ RSpec.describe GithubIssueSync::IssueExporter do
     it "does not create any file on disk" do
       io = StringIO.new
       expect { exporter.call(io: io) }.not_to change { Dir.glob("*.csv").count }
+    end
+  end
+
+  describe "faraday-retry middleware" do
+    it "is registered in Octokit's default Faraday stack" do
+      require "faraday/retry"
+      handler_classes = Octokit::Default.middleware.handlers.map(&:klass)
+      expect(handler_classes).to include(Faraday::Retry::Middleware)
+    end
+
+    it "retries a transient 503 server error and succeeds on the second attempt" do
+      issues_json = JSON.generate([
+        {
+          "number" => 42, "state" => "open",
+          "title" => "Retry test issue", "body" => "",
+          "labels" => [], "html_url" => "https://github.com/briancolfer/abcscribe/issues/42",
+          "pull_request" => nil
+        }
+      ])
+
+      stub_request(:get, "https://api.github.com/repos/briancolfer/abcscribe/issues")
+        .with(query: hash_including("labels" => "qa-feedback", "state" => "open"))
+        .to_return(
+          { status: 503, body: "Service Unavailable", headers: {} },
+          { status: 200, body: issues_json, headers: { "Content-Type" => "application/json" } }
+        )
+
+      io = StringIO.new
+      exporter.call(io: io)
+      csv = CSV.parse(io.string, headers: true)
+      expect(csv.map { |r| r["GitHub Issue #"] }).to include("42")
     end
   end
 
