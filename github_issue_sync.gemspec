@@ -25,7 +25,8 @@ Gem::Specification.new do |spec|
   spec.executables   = ["github-issue-sync"]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "csv",     "~> 3.0"
-  spec.add_dependency "octokit", "~> 9.0"
-  spec.add_dependency "thor",    "~> 1.0"
+  spec.add_dependency "csv",           "~> 3.0"
+  spec.add_dependency "faraday-retry", "~> 2.0"
+  spec.add_dependency "octokit",       "~> 9.0"
+  spec.add_dependency "thor",          "~> 1.0"
 end

@@ -6,6 +6,9 @@
 /vendor/bundle/
 /Gemfile.lock
 
+# Exported data
+*.csv
+
 # Test / coverage
 /coverage/
 
