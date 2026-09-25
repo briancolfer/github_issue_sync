@@ -75,7 +75,7 @@ module GithubIssueSync
     end
 
     def write_csv(rows, path)
-      CSV.open(path, "w") do |csv|
+      CSV.open(path, "w", encoding: "UTF-8") do |csv|
         csv << IssueRow::COLUMNS
         rows.each { |row| csv << row.values }
       end

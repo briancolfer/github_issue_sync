@@ -25,32 +25,32 @@ RSpec.describe GithubIssueSync::IssueExporter do
 
     it "writes the header row matching IssueRow::COLUMNS" do
       exporter.call(output_path: output_path)
-      headers = CSV.read(output_path).first
+      headers = CSV.read(output_path, encoding: "UTF-8").first
       expect(headers).to eq(GithubIssueSync::IssueRow::COLUMNS)
     end
 
     it "writes one data row per issue returned by the API" do
       exporter.call(output_path: output_path)
-      rows = CSV.read(output_path)
+      rows = CSV.read(output_path, encoding: "UTF-8")
       expect(rows.length).to eq(3) # 1 header + 2 issues
     end
 
     it "populates the GitHub Issue # column correctly" do
       exporter.call(output_path: output_path)
-      data_rows = CSV.read(output_path, headers: true)
+      data_rows = CSV.read(output_path, headers: true, encoding: "UTF-8")
       expect(data_rows.map { |r| r["GitHub Issue #"] }).to contain_exactly("42", "43")
     end
 
     it "correctly extracts Section from the structured body" do
       exporter.call(output_path: output_path)
-      data_rows = CSV.read(output_path, headers: true)
+      data_rows = CSV.read(output_path, headers: true, encoding: "UTF-8")
       issue_42  = data_rows.find { |r| r["GitHub Issue #"] == "42" }
       expect(issue_42["Section"]).to eq("Active Behaviors")
     end
 
     it "correctly extracts Priority from the structured body" do
       exporter.call(output_path: output_path)
-      data_rows = CSV.read(output_path, headers: true)
+      data_rows = CSV.read(output_path, headers: true, encoding: "UTF-8")
       issue_42  = data_rows.find { |r| r["GitHub Issue #"] == "42" }
       expect(issue_42["Priority"]).to eq("High")
     end
@@ -59,7 +59,7 @@ RSpec.describe GithubIssueSync::IssueExporter do
       # The cassette issues have pull_request: null, so both should be included.
       # This test documents the skip-PR contract — a PR-shaped response would be excluded.
       exporter.call(output_path: output_path)
-      data_rows = CSV.read(output_path, headers: true)
+      data_rows = CSV.read(output_path, headers: true, encoding: "UTF-8")
       expect(data_rows.count).to eq(2)
     end
   end

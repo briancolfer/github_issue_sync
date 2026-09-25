@@ -79,7 +79,7 @@ module GithubIssueSync
     end
 
     def load_csv(path)
-      CSV.read(path, headers: true).map do |csv_row|
+      CSV.read(path, headers: true, encoding: "bom|utf-8").map do |csv_row|
         IssueRow.from_csv_row(csv_row)
       end
     end

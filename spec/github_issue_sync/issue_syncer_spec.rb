@@ -7,7 +7,7 @@ require "tmpdir"
 # Helper to write a minimal CSV file with the IssueRow column layout.
 def write_csv(path, rows)
   require "github_issue_sync/issue_row"
-  CSV.open(path, "w") do |csv|
+  CSV.open(path, "w", encoding: "UTF-8") do |csv|
     csv << GithubIssueSync::IssueRow::COLUMNS
     rows.each { |r| csv << GithubIssueSync::IssueRow::COLUMNS.map { |c| r[c] } }
   end
@@ -152,6 +152,28 @@ RSpec.describe GithubIssueSync::IssueSyncer do
       result = syncer.call(csv_path: csv_path)
       expect(result[:updated]).to eq(0)
       expect(result[:created]).to eq(0)
+    end
+  end
+
+  describe "#call — non-UTF-8 locale" do
+    let(:csv_path) { File.join(Dir.tmpdir, "sync-test-#{Process.pid}.csv") }
+    after { File.delete(csv_path) if File.exist?(csv_path) }
+
+    # Simulate LANG=C / cron, where Ruby defaults to US-ASCII.
+    around do |example|
+      original = Encoding.default_external
+      Encoding.default_external = Encoding::US_ASCII
+      example.run
+    ensure
+      Encoding.default_external = original
+    end
+
+    it "reads a CSV containing non-ASCII characters" do
+      write_csv(csv_path, [ new_row.merge("Title" => "Home Page › Hero: 🟠 copy is wrong") ])
+      io = StringIO.new
+      result = syncer.call(csv_path: csv_path, dry_run: true, io: io)
+      expect(result[:would_create]).to eq(1)
+      expect(io.string).to include("Home Page › Hero")
     end
   end
 
