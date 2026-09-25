@@ -93,6 +93,8 @@ The syncer:
   state, body, or label set has changed.
 - **Creates** new issues for rows where `GitHub Issue #` is blank.
 - **Skips** rows that are identical to the current GitHub state.
+- With `state: "open"` or `state: "closed"`, **skips** existing rows whose CSV
+  `State` doesn't match (the default, `"all"`, processes every row).
 
 ### Structured body format
 
@@ -142,7 +144,15 @@ github-issue-sync export --repo owner/repo --state closed --labels bug enhanceme
 ```sh
 # Push edits from a CSV back to GitHub
 github-issue-sync sync --repo owner/repo --input issues.csv
+
+# Only sync existing rows whose State column is open (open, closed, or all; default all)
+github-issue-sync sync --repo owner/repo --input issues.csv --state open
 ```
+
+`--state` filters on the CSV's `State` column (case-insensitive), not on the
+issue's current state on GitHub. Rows with a blank `GitHub Issue #` are always
+created. Note that `--state open` skips a row that was changed to `closed` in the
+sheet, so that close is not pushed to GitHub.
 
 The sync command prints a summary to stderr on completion:
 

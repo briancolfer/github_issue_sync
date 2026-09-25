@@ -63,13 +63,16 @@ module GithubIssueSync
     method_option :input,
       aliases: "-i", required: true,
       desc: "Path to the input CSV file"
+    method_option :state,
+      aliases: "-s", default: "all", enum: %w[open closed all],
+      desc: "Only sync existing rows whose CSV State matches (new rows are always created)"
     method_option :format,
       aliases: "-f", default: "csv",
       desc: "Input format (currently only csv)"
     def sync
       token = require_token!
       syncer = IssueSyncer.new(repo: options[:repo], token: token)
-      result = syncer.call(csv_path: options[:input])
+      result = syncer.call(csv_path: options[:input], state: options[:state])
       $stderr.puts "Done. Updated: #{result[:updated]}, Created: #{result[:created]}"
     end
 

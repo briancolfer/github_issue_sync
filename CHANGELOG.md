@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `sync --state open|closed|all` (and `IssueSyncer#call(state:)`) — only sync existing rows whose CSV `State` matches, case-insensitively. Defaults to `all`; new rows are always created. Invalid values are rejected.
+
 ### Fixed
 - `sync` no longer crashes with `CSV::InvalidEncodingError` on non-ASCII input when the locale isn't UTF-8 (e.g. cron, Docker, `LANG=C`). CSVs are now read as UTF-8 and a leading BOM (Excel exports) is stripped.
 

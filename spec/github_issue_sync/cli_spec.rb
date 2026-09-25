@@ -187,9 +187,25 @@ RSpec.describe GithubIssueSync::CLI do
         )
       end
 
-      it "calls the syncer with the CSV input path" do
+      it "calls the syncer with the CSV input path and state 'all' by default" do
         run("sync", "--repo", "owner/repo", "--input", "issues.csv")
-        expect(syncer_double).to have_received(:call).with(csv_path: "issues.csv")
+        expect(syncer_double).to have_received(:call).with(csv_path: "issues.csv", state: "all")
+      end
+    end
+
+    context "with --state open" do
+      it "forwards the state to the syncer" do
+        run("sync", "--repo", "owner/repo", "--input", "issues.csv", "--state", "open")
+        expect(syncer_double).to have_received(:call).with(csv_path: "issues.csv", state: "open")
+      end
+    end
+
+    context "with an invalid --state" do
+      it "exits with a non-zero status without calling the syncer" do
+        expect {
+          capture_stderr { run("sync", "--repo", "owner/repo", "--input", "issues.csv", "--state", "opne") }
+        }.to raise_error(SystemExit) { |e| expect(e.status).not_to eq(0) }
+        expect(syncer_double).not_to have_received(:call)
       end
     end
   end

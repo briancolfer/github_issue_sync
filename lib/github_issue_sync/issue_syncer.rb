@@ -23,12 +23,15 @@ module GithubIssueSync
     # @param csv_path [String]  Path to the CSV to sync.
     # @param dry_run  [Boolean] When true, print intended actions but make no API calls.
     # @param io       [IO]      Output stream for dry-run / summary (default $stdout).
+    # @param state    [String]  "open", "closed", or "all". Existing rows whose CSV State
+    #                           doesn't match are skipped; new rows are always created.
     # @return [Hash]  Counts: { updated:, created: } or { would_update:, would_create: }
-    def call(csv_path:, dry_run: false, io: $stdout)
+    def call(csv_path:, dry_run: false, io: $stdout, state: "all")
       rows = load_csv(csv_path)
 
       # Split into existing (have a number) and new (no number).
       existing_rows, new_rows = rows.partition { |r| r["GitHub Issue #"].to_s.strip != "" }
+      existing_rows = existing_rows.select { |r| state_matches?(r, state) }
 
       # Fetch current state of all referenced issues in one pass so we can diff.
       live_issues = fetch_live_issues(existing_rows.map { |r| r["GitHub Issue #"].to_i })
@@ -92,6 +95,10 @@ module GithubIssueSync
       rescue Octokit::NotFound
         # Issue deleted on GitHub — skip without raising.
       end
+    end
+
+    def state_matches?(row, state)
+      state == "all" || row["State"].to_s.strip.casecmp?(state)
     end
 
     # Detect meaningful changes: title, state, body (description), or label set.

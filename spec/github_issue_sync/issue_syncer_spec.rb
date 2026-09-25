@@ -177,6 +177,78 @@ RSpec.describe GithubIssueSync::IssueSyncer do
     end
   end
 
+  describe "#call — state filter" do
+    let(:csv_path) { File.join(Dir.tmpdir, "sync-test-#{Process.pid}.csv") }
+    after { File.delete(csv_path) if File.exist?(csv_path) }
+
+    # Issue 43 is closed in the CSV. It is deliberately NOT stubbed, so any
+    # attempt to fetch or patch it raises instead of passing silently.
+    let(:closed_row) do
+      changed_row.merge(
+        "GitHub Issue #" => "43",
+        "State"          => "closed",
+        "Title"          => "A closed issue",
+        "URL"            => "https://github.com/briancolfer/abcscribe/issues/43"
+      )
+    end
+
+    def stub_get_issue_43_old
+      body = JSON.generate(
+        number: 43, state: "open", title: "Old title", body: "Old body",
+        labels: [], html_url: "https://github.com/briancolfer/abcscribe/issues/43"
+      )
+      stub_request(:get, "https://api.github.com/repos/briancolfer/abcscribe/issues/43")
+        .to_return(status: 200, body: body, headers: { "Content-Type" => "application/json" })
+    end
+
+    it "processes every existing row by default (state: all)" do
+      stub_get_issue_42_old
+      stub_get_issue_43_old
+      write_csv(csv_path, [ changed_row, closed_row ])
+      result = syncer.call(csv_path: csv_path, dry_run: true, io: StringIO.new)
+      expect(result[:would_update]).to eq(2)
+    end
+
+    it "with state: 'open', skips existing rows whose CSV State is closed without fetching them" do
+      stub_get_issue_42_old
+      write_csv(csv_path, [ changed_row, closed_row ])
+      result = syncer.call(csv_path: csv_path, dry_run: true, io: StringIO.new, state: "open")
+      expect(result[:would_update]).to eq(1)
+      expect(a_request(:get, %r{/issues/43})).not_to have_been_made
+    end
+
+    it "with state: 'closed', skips existing rows whose CSV State is open without fetching them" do
+      stub_get_issue_43_old
+      write_csv(csv_path, [ changed_row, closed_row ])
+      result = syncer.call(csv_path: csv_path, dry_run: true, io: StringIO.new, state: "closed")
+      expect(result[:would_update]).to eq(1)
+      expect(a_request(:get, %r{/issues/42})).not_to have_been_made
+    end
+
+    it "matches the CSV State case- and whitespace-insensitively" do
+      stub_get_issue_42_old
+      write_csv(csv_path, [ changed_row.merge("State" => " Open "), closed_row ])
+      result = syncer.call(csv_path: csv_path, dry_run: true, io: StringIO.new, state: "open")
+      expect(result[:would_update]).to eq(1)
+    end
+
+    it "always creates new rows, regardless of their CSV State" do
+      write_csv(csv_path, [ new_row.merge("State" => "closed") ])
+      result = syncer.call(csv_path: csv_path, dry_run: true, io: StringIO.new, state: "open")
+      expect(result[:would_create]).to eq(1)
+    end
+
+    it "applies the filter outside dry-run mode too" do
+      stub_get_issue_42_old
+      patch = stub_request(:patch, "https://api.github.com/repos/briancolfer/abcscribe/issues/42")
+        .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
+      write_csv(csv_path, [ changed_row, closed_row ])
+      result = syncer.call(csv_path: csv_path, state: "open")
+      expect(result).to eq(updated: 1, created: 0)
+      expect(patch).to have_been_made.once
+    end
+  end
+
   describe "#call — dry-run mode" do
     let(:csv_path) { File.join(Dir.tmpdir, "sync-test-#{Process.pid}.csv") }
     after { File.delete(csv_path) if File.exist?(csv_path) }
